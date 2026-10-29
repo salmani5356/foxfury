@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>FOXFURY - Fox Adventure</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#100e20;color:#fff;font-family:Arial,sans-serif;text-align:center;overflow:hidden}
+header{padding:12px;background:#1c1731;border-bottom:2px solid #ff6a22}
+h1{margin:0;color:#ff792e;letter-spacing:4px;text-shadow:0 0 18px #ff3c16}
+#stats{display:flex;justify-content:center;gap:22px;padding:12px;font-size:16px}
+canvas{display:block;width:min(96vw,900px);height:auto;max-height:65vh;margin:auto;border:2px solid #ff762d;border-radius:12px;background:#211943;touch-action:none}
+#controls{display:flex;justify-content:center;gap:16px;margin:12px}
+button{border:0;border-radius:14px;background:#ff6a22;color:white;padding:14px 24px;font-size:18px;font-weight:bold;cursor:pointer;box-shadow:0 4px #a93814}
+button:active{transform:translateY(3px);box-shadow:0 1px #a93814}
+#hint{color:#c8bedf;font-size:13px;padding:4px}
+</style>
+</head>
+<body>
+<header><h1>🦊 FOXFURY</h1><div>THE FIERY FOX ADVENTURE</div></header>
+<div id="stats"><span>🪙 سکه: <b id="coins">0</b></span><span>❤️ جان: <b id="lives">3</b></span><span>🏆 رکورد: <b id="best">0</b></span></div>
+<canvas id="game" width="800" height="450"></canvas>
+<div id="controls">
+<button id="left">◀</button><button id="jump">پرش ⬆</button><button id="right">▶</button>
+</div>
+<div id="hint">کامپیوتر: کلیدهای جهت‌دار یا Space | موبایل: دکمه‌ها</div>
+<script>
+const c=document.getElementById('game'),ctx=c.getContext('2d');
+const $=id=>document.getElementById(id);
+let fox={x:90,y:330,w:42,h:42,vx:0,vy:0,ground:false};
+let coins=[],obstacles=[],score=0,lives=3,keys={},frame=0,playing=true,inv=0;
+let best=Number(localStorage.getItem('foxfuryBest')||0);
+$('best').textContent=best;
+function reset(){fox={x:90,y:330,w:42,h:42,vx:0,vy:0,ground:false};coins=[];obstacles=[];score=0;lives=3;frame=0;inv=0;playing=true;update()}
+function update(){ $('coins').textContent=score;$('lives').textContent=lives}
+function spawn(){
+ coins.push({x:830,y:260+Math.random()*100,r:11});
+ if(Math.random()<.7)obstacles.push({x:830,y:374,w:28,h:40});
+}
+function hit(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+function drawFox(){
+ ctx.save();ctx.translate(fox.x+fox.w/2,fox.y+fox.h/2);
+ ctx.fillStyle='#ff762d';ctx.beginPath();ctx.ellipse(0,5,20,16,0,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#ff762d';ctx.beginPath();ctx.moveTo(-14,-6);ctx.lineTo(-20,-28);ctx.lineTo(-3,-15);ctx.fill();ctx.beginPath();ctx.moveTo(3,-15);ctx.lineTo(18,-29);ctx.lineTo(15,-4);ctx.fill();
+ ctx.fillStyle='#ffe8c9';ctx.beginPath();ctx.ellipse(7,10,10,7,0,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(9,-5,5,0,7);ctx.fill();ctx.fillStyle='#171326';ctx.beginPath();ctx.arc(11,-5,2,0,7);ctx.fill();
+ ctx.fillStyle='#ff762d';ctx.beginPath();ctx.moveTo(-16,12);ctx.quadraticCurveTo(-36,8,-29,-9);ctx.quadraticCurveTo(-12,-1,-16,12);ctx.fill();
+ ctx.restore()
+}
+function draw(){
+ let g=ctx.createLinearGradient(0,0,0,450);g.addColorStop(0,'#17132f');g.addColorStop(1,'#4a2352');ctx.fillStyle=g;ctx.fillRect(0,0,800,450);
+ for(let i=0;i<45;i++){ctx.fillStyle='#fff';ctx.globalAlpha=.3+(i%4)*.15;ctx.fillRect((i*137)%800,(i*71)%280,2,2)}ctx.globalAlpha=1;
+ ctx.fillStyle='#342343';for(let i=0;i<8;i++){ctx.beginPath();ctx.moveTo(i*120,390);ctx.lineTo(i*120+60,270+(i%3)*25);ctx.lineTo(i*120+130,390);ctx.fill()}
+ ctx.fillStyle='#272034';ctx.fillRect(0,390,800,60);
+ ctx.fillStyle='#ff6726';ctx.fillRect(0,390,800,4);
+ coins.forEach(o=>{ctx.fillStyle='#ffcc42';ctx.beginPath();ctx.arc(o.x,o.y,o.r,0,7);ctx.fill();ctx.strokeStyle='#fff0a0';ctx.lineWidth=3;ctx.stroke()});
+ obstacles.forEach(o=>{ctx.fillStyle='#a64bff';ctx.beginPath();ctx.moveTo(o.x,o.y+o.h);ctx.lineTo(o.x+o.w/2,o.y);ctx.lineTo(o.x+o.w,o.y+o.h);ctx.fill();ctx.fillStyle='#ff9259';ctx.fillRect(o.x+7,o.y+20,4,8)});
+ if(inv%8<4||inv===0)drawFox();
+ if(!playing){ctx.fillStyle='#100e20dd';ctx.fillRect(0,0,800,450);ctx.fillStyle='#ff792e';ctx.font='bold 42px Arial';ctx.textAlign='center';ctx.fillText('GAME OVER',400,200);ctx.fillStyle='white';ctx.font='24px Arial';ctx.fillText('سکه‌های تو: '+score,400,245);ctx.fillText('برای شروع دوباره لمس کن',400,290)}
+}
+function step(){
+ if(playing){
+ frame++;if(frame%85===0)spawn();
+ fox.vx=(keys.right?4:0)-(keys.left?4:0);fox.x+=fox.vx;fox.x=Math.max(0,Math.min(758,fox.x));
+ fox.vy+=.55;fox.y+=fox.vy;if(fox.y+fox.h>=390){fox.y=390-fox.h;fox.vy=0;fox.ground=true}else fox.ground=false;
+ coins.forEach(o=>o.x-=3.5);obstacles.forEach(o=>o.x-=4);
+ coins=coins.filter(o=>{if(Math.hypot(fox.x+20-o.x,fox.y+20-o.y)<28){score++;if(score>best){best=score;localStorage.setItem('foxfuryBest',best);$('best').textContent=best}return false}return o.x>-30});
+ obstacles=obstacles.filter(o=>{if(hit(fox,o)&&inv===0){lives--;inv=75;update();if(lives<=0)playing=false}return o.x>-50});
+ if(inv>0)inv--;update();
+ }
+ draw();requestAnimationFrame(step)
+}
+function jump(){if(!playing){reset();return}if(fox.ground){fox.vy=-12;fox.ground=false}}
+$('left').onpointerdown=()=>keys.left=true;$('left').onpointerup=()=>keys.left=false;$('left').onpointerleave=()=>keys.left=false;
+$('right').onpointerdown=()=>keys.right=true;$('right').onpointerup=()=>keys.right=false;$('right').onpointerleave=()=>keys.right=false;
+$('jump').onpointerdown=jump;
+window.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp',' ','a','d'].includes(e.key))e.preventDefault();if(e.key==='ArrowLeft'||e.key==='a')keys.left=true;if(e.key==='ArrowRight'||e.key==='d')keys.right=true;if(e.key==='ArrowUp'||e.key===' ')jump()});
+window.addEventListener('keyup',e=>{if(e.key==='ArrowLeft'||e.key==='a')keys.left=false;if(e.key==='ArrowRight'||e.key==='d')keys.right=false});
+c.addEventListener('pointerdown',()=>{if(!playing)reset()});
+update();step();
+</script>
+</body>
+</html>
