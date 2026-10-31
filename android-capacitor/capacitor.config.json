@@ -1,0 +1,9 @@
+{
+ "appId": "ir.foxfury.game",
+ "appName": "فاکس‌فیوری",
+ "webDir": "www",
+ "backgroundColor": "#0A0608",
+ "android": {
+  "allowMixedContent": false
+ }
+}
