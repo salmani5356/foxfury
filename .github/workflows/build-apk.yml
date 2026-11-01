@@ -42,5 +42,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: { name: FoxFury-APK, path: android-capacitor/FoxFury.apk }
       - uses: actions/upload-artifact@v4
-        if: ${{ hashFiles('android-capacitor/keystore-out/foxfury.jks') != '' }}
-        with: { name: KEYSTORE-SAVE-THIS, path: android-capacitor/keystore-out/foxfury.jks }
+        if: ${{ hashFiles('keystore-out/foxfury.jks') != '' }}
+        with: { name: KEYSTORE-SAVE-THIS, path: keystore-out/foxfury.jks }
