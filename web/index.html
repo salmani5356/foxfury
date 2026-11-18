@@ -86,6 +86,11 @@ button.pill{pointer-events:auto;cursor:pointer;font-weight:400;font-size:13px}
 }
 .btn.play::before{content:'';width:0;height:0;border-style:solid;border-width:8px 0 8px 13px;border-color:transparent transparent transparent #FFD48A;filter:drop-shadow(0 0 5px rgba(255,170,60,.9))}
 .btn.alt,.btn.turq{color:#F6E6CC}
+.aboutCard{display:flex;flex-direction:column;gap:10px;align-items:stretch;max-height:86vh;overflow:auto}
+.aboutCard h2{margin:0 0 4px;text-align:center}
+.aboutCard a{color:#FFD48A;direction:ltr;font-size:13px;word-break:break-all}
+.aboutCard .policy{font-size:12.5px;line-height:1.8;color:#E8D5B8;text-align:right}
+.aboutCard .policy p{margin:0 0 8px}
 .btn.small{min-width:0;font-size:14px;padding:8px 16px;border-radius:7px}
 .btn[disabled]{opacity:.45;cursor:not-allowed}
 .row2{display:flex;gap:10px}
@@ -150,6 +155,7 @@ html,body{overscroll-behavior:none}
       <div class="stats"><span>بهترین: <b id="mBest">۰ متر</b></span><span>سکه‌ها: <b id="mCoins">۰</b></span></div>
       <button class="btn play" id="play" type="button">شروع بازی</button>
       <button class="btn alt" id="shopBtn" type="button">فروشگاه</button>
+      <button class="btn alt small" id="aboutBtn" type="button">ارتباط با ما</button>
       <p class="tip">لمس کن تا بپری؛ هرچه بیشتر نگه داری بلندتر می‌پری. توی هوا دوباره لمس کن. برای پرتگاه‌های بلند دکمه‌ی شتاب رو بزن.</p>
     </section>
 
@@ -177,6 +183,23 @@ html,body{overscroll-behavior:none}
       </div>
     </section>
 
+    <section class="ov dim" id="about" hidden>
+      <div class="card aboutCard">
+        <h2>ارتباط با ما</h2>
+        <div class="rows"><span>ایمیل</span><a href="mailto:rooz.studio.app@gmail.com">rooz.studio.app@gmail.com</a></div>
+        <div class="rows"><span>تلگرام</span><a href="https://t.me/RoozStudio_Support" target="_blank" rel="noopener">t.me/RoozStudio_Support</a></div>
+        <button class="btn alt small" id="policyBtn" type="button">سیاست حریم خصوصی</button>
+        <div class="policy" id="policy" hidden>
+          <p><b>چه چیزی ذخیره می‌شود؟</b> فقط بهترین رکورد، تعداد سکه‌ها، آیتم‌های خریداری‌شده با سکه‌ی بازی و وضعیت قطع و وصل صدا. این‌ها فقط روی همین گوشی می‌مانند.</p>
+          <p><b>چه چیزی ارسال می‌شود؟</b> هیچ چیز. بازی حساب کاربری ندارد، اطلاعاتی نمی‌فرستد و هیچ اطلاعات شخصی (نام، شماره، مخاطبین، موقعیت مکانی، دوربین، میکروفون) نمی‌گیرد.</p>
+          <p><b>تبلیغ و تحلیل:</b> این نسخه تبلیغ و ابزار آماری ندارد. سکه‌ها فقط درون بازی به‌دست می‌آیند و خرید با پول واقعی وجود ندارد.</p>
+          <p><b>حذف اطلاعات:</b> با پاک کردن اطلاعات برنامه یا حذف آن از گوشی، همه‌چیز پاک می‌شود.</p>
+          <p><b>کودکان:</b> بازی از هیچ‌کس، از جمله کودکان، اطلاعات شخصی نمی‌گیرد.</p>
+        </div>
+        <button class="btn alt small" id="aboutBack" type="button">بازگشت</button>
+      </div>
+    </section>
+
     <section class="ov dim" id="shop" hidden>
       <div class="shopHead"><h2>فروشگاه روباه</h2><div class="pill"><i class="coinDot"></i><span id="sCoins">۰</span></div></div>
       <canvas class="pv" id="pv" width="400" height="200"></canvas>
@@ -184,7 +207,7 @@ html,body{overscroll-behavior:none}
       <button class="btn alt small" id="shopBack" type="button">بازگشت</button>
     </section>
   </div>
-  <p class="note">نمونه‌ی پیش‌نمایش. تبلیغ‌ها فعلاً نمایشی‌ان و اطلاعات فقط روی همین مرورگر ذخیره می‌شن.</p>
+  <p class="note">اطلاعات بازی فقط روی همین دستگاه ذخیره می‌شود.</p>
 </main>
 
 <script>console.warn('Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation'),
@@ -431,7 +454,7 @@ function updateParts(dt){for(var i=parts.length-1;i>=0;i--){var p=parts[i];p.lif
 
 /* ---------- flow ---------- */
 function show(id,on){$(id).hidden=!on}
-function allOverlays(){['#menu','#over','#ad','#shop'].forEach(function(i){show(i,false)})}
+function allOverlays(){['#menu','#over','#ad','#shop','#about'].forEach(function(i){show(i,false)})}
 function toMenu(){
   musStop();state='menu';menuWorld();resetFox();camYs=GY;parts=[];allOverlays();show('#menu',true);setHud(false);
   $('#mBest').textContent=fa(save.best)+' متر';$('#mCoins').textContent=fa(save.coins);
@@ -1271,6 +1294,9 @@ $('#toMenu').addEventListener('click',toMenu);
 $('#shopBtn').addEventListener('click',function(){audio();openShop()});
 $('#toShop').addEventListener('click',openShop);
 $('#shopBack').addEventListener('click',toMenu);
+$('#aboutBtn').addEventListener('click',function(){allOverlays();$('#policy').hidden=true;show('#about',true)});
+$('#aboutBack').addEventListener('click',toMenu);
+$('#policyBtn').addEventListener('click',function(){var p=$('#policy');p.hidden=!p.hidden});
 $('#items').addEventListener('click',function(e){
   var b=e.target.closest('button');if(!b)return;var id=b.dataset.id,it=ITEMS.filter(function(i){return i.id===id})[0];if(!it)return;
   if(!save.owned[id]){if(save.coins>=it.price){save.coins-=it.price;save.owned[id]=true;save.equip[id]=true;sfx.buy()}}
